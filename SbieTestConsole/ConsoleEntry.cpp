@@ -5,8 +5,47 @@
 #include <psapi.h>
 #include "Process.h"
 
-char            NameBuffer[0x1000]   = {};
+char            NameBuffer[0x1000] = {};
 PUNICODE_STRING MemoryMappedFilename = reinterpret_cast<PUNICODE_STRING>(NameBuffer);
+
+bool HasMutex(LPCWSTR lpName) {
+    HANDLE hObject = NULL;
+    SetLastError(0);
+    hObject = CreateMutex(NULL, FALSE, lpName);
+    DWORD dwError = GetLastError();
+    if (hObject) {
+        CloseHandle(hObject);
+    }
+
+    if (dwError == ERROR_ALREADY_EXISTS) {
+        printf("[CreateMutex] Already Exists: %ls\n", lpName);
+        return true;
+    }
+
+    //2031617
+    SetLastError(0);
+    hObject = OpenMutex(MUTEX_ALL_ACCESS, FALSE, lpName);
+    dwError = GetLastError();
+    if (hObject) {
+        printf("[OpenMutex] Successful: %ls\n", lpName);
+        CloseHandle(hObject);
+        return true;
+    }
+
+    if (dwError != ERROR_FILE_NOT_FOUND) {
+        printf("[OpenMutext] Did not have last error of [ERROR_FILE_NOT_FOUND][0x2] Sus... Last Error:%d\n", dwError);
+        return true;
+    }
+
+    return false;
+}
+
+int CheckMutexes() {
+    printf("\nChecking Sandboxie Mutexes\n");
+    printf("Has Mutext [SBIE_BOXED_ServiceInitComplete_Mutex1]: %s\n", HasMutex(L"SBIE_BOXED_ServiceInitComplete_Mutex1") ? "true" : "false");
+    printf("Has Mutext [Sandboxie_SingleInstanceMutex_Control]: %s\n", HasMutex(L"Sandboxie_SingleInstanceMutex_Control") ? "true" : "false");
+    return 0;
+}
 
 int PrintModules(DWORD processID) {
     HMODULE      hMods[1024];
@@ -42,8 +81,8 @@ VOID CheckSandboxieByGetModuleHandle() {
 }
 
 VOID CheckSandboxieByQueryVirtualMemoryMappedFilename() {
-    SIZE_T   ReturnedLength     = 0;
-    NTSTATUS Status             = STATUS_SUCCESS;
+    SIZE_T   ReturnedLength = 0;
+    NTSTATUS Status = STATUS_SUCCESS;
     HMODULE  SbieHideDllAddress = GetModuleHandleA("sbiehide.dll");
 
     if (SbieHideDllAddress == NULL) {
@@ -55,7 +94,8 @@ VOID CheckSandboxieByQueryVirtualMemoryMappedFilename() {
 
     if (Status != STATUS_ACCESS_DENIED) {
         printf("Sbiedll found! check hook\n");
-    } else {
+    }
+    else {
         printf("Test pass\n");
     }
 }
@@ -63,6 +103,7 @@ VOID CheckSandboxieByQueryVirtualMemoryMappedFilename() {
 int main() {
     CheckSandboxieByGetModuleHandle();
     CheckSandboxieByQueryVirtualMemoryMappedFilename();
+    CheckMutexes();
     PrintModules(reinterpret_cast<DWORD>(NtCurrentProcessId()));
 
     getchar();
