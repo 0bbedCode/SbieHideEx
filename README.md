@@ -1,10 +1,10 @@
 # SbieHide
 
-A plugin written for [sandboxie-plus](https://github.com/sandboxie-plus/Sandboxie), which is used to fight the detection of sbiedll.dll
+A plugin written for [sandboxie-plus](https://github.com/sandboxie-plus/Sandboxie), which is used to fight the detection of sbiedll.dll & Mutex Strings plus more coming soon!
 
 ## How to use?
 
-Compile this plug-in or download pre-compiled files from [Release](https://github.com/VeroFess/SbieHide/releases)
+Compile this plug-in or download pre-compiled files from [Release](https://github.com/0bbedCode/SbieHideEx/releases)
 
 
 **You should ensure file name of this plug-in contains the string 'sbiehide', otherwise it will not hide itself.**
