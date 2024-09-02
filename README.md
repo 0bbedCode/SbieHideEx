@@ -41,7 +41,8 @@ Finally, please bring a sample in issue, and I will try to correct this problem.
 * NtQueryObject [ObjectNameInformation]
 * NtQueryInformationFile [FileNameInformation|FileAllInformation]
 * NtQuerySection [SectionOriginalBaseInformation]
-
+* NtCreateMutant "Sandboxie_SingleInstanceMutex_Control" or "SBIE_BOXED_ServiceInitComplete_Mutex1"
+* NtOpenMutant "Sandboxie_SingleInstanceMutex_Control" or "SBIE_BOXED_ServiceInitComplete_Mutex1"
 -----
 
 ## LICENSE
